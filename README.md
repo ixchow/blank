@@ -11,7 +11,7 @@ More concretely, `}% text text ... %{` is replaced with `write(" text text ... "
 
 *But what about a literal `%{` or `}%`*?
 Blank prioritizes simplicity over perfection.
-So you'll need to work around it yourself. Maybe use an html entity or javascript code that `write`'s the characters?
+So you'll need to work around it yourself. Maybe use an html entity or javascript code that `write`s the characters?
 
 ## Execution Context
 
@@ -24,11 +24,16 @@ Generally, templates execute in a restricted environment with access to only the
 
 ## Programmatic Usage
 
-Blank exports two functions, both of which run a blank template
-```
+Blank exports two functions, both of which run a template with a provided context.
+Your code must (at least) provide a `write` function int the context.
 
-The `blank.includeSync` function works synchronously, while the 
+The `blank.includeSync(filename, context)` function works synchronously, while the `blank.include(filename, context, callback)` function works asyncronously.
 
 ## Command-line Usage
-You can call `blank.js` from the command line to pre-process files.
+You can call `node blank.js <infile> <outfile>` from the command line to process files.
+This assumes utf8 encoding of both the input and output.
+When run from the command line, blank templates recieve a context that also includes node's `require` function.
 
+## A Note On Security
+**Blank is only intended for templates you trust.**
+No attempt has been made to make blank secure against malicious templates; indeed, such security is in general impossible (e.g., your code can never know if a user is trying to steal all of the cycles or has just written bad code).

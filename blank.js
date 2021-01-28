@@ -182,11 +182,11 @@ if (require.main === module) {
 	const output = [];
 
 	function write(x) {
-		output.push(x);
+		output.push(x.toString());
 	}
 	console.log("Running template from '" + infile + "'...");
 
-	includeSync(infile, {write:write});
+	includeSync(infile, {write:write,require:require});
 
 	console.log("Writing output to '" + outfile + "'...");
 
