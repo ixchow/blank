@@ -19,21 +19,21 @@ Generally, templates execute in a restricted environment with access to only the
  - `include(filename, context={})` which can be used to include templates recursively; `context` is merged with the context of the current template.
  - `write(str)` outputs its argument.
 
-`include` is provided by blank if your code doesn't supply it when processing a template.
+`include` is provided by Blank if your code doesn't supply it when processing a template.
 `write` *must* be supplied by your code.
 
 ## Programmatic Usage
 
 Blank exports two functions, both of which run a template with a provided context.
-Your code must (at least) provide a `write` function int the context.
+Your code must (at least) provide a `write` function in the context.
 
 The `blank.includeSync(filename, context)` function works synchronously, while the `blank.include(filename, context, callback)` function works asyncronously.
 
 ## Command-line Usage
 You can call `node blank.js <infile> <outfile>` from the command line to process files.
 This assumes utf8 encoding of both the input and output.
-When run from the command line, blank templates recieve a context that also includes node's `require` function.
+When run from the command line, Blank templates recieve a context that also includes node's `require` function.
 
 ## A Note On Security
 **Blank is only intended for templates you trust.**
-No attempt has been made to make blank secure against malicious templates; indeed, such security is in general impossible (e.g., your code can never know if a user is trying to steal all of the cycles or has just written bad code).
+No attempt has been made to make Blank secure against malicious templates; indeed, such security is in general impossible (e.g., your code can never know if a user is trying to steal all of the cycles or has just written bad code).
