@@ -6,7 +6,7 @@ Blank ("_") is a very simple templating language meant for use in server-side ge
 
 In a Blank template (generally a `._` file), everything between `%{` and `}%` is run as javascript code [in a restricted environment], while everything outside is output directly.
 
-More concretely, `}% text text ... %{` is replaced with `write(" text text ... ");` (properly quoting characters inside the `"`, of course), then the file is run.
+More concretely, `}% text text ... %{` is replaced with `write(" text text ... ");` -- properly quoting characters inside the `"` -- then the file is run.
 (A similar replacement is done for everything between the start of the file and the first `%{`, and between the last `}%` and the end of the file.)
 
 *But what about a literal `%{` or `}%`*?
