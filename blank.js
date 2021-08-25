@@ -32,7 +32,7 @@ function includeSync(filepath, dict) {
 		throw "dict must be an object including a 'write' function.";
 	}
 	const template = fs.readFileSync(filepath, {encoding:'utf8'});
-	const dirname = path.posix.dirname(filepath);
+	const dirname = path.posix.dirname(path.resolve(filepath));
 	const run = makeRun(template, false);
 
 	//build template namespace from dict + 'include' perhaps:
@@ -41,6 +41,18 @@ function includeSync(filepath, dict) {
 	for (let n in dict) {
 		FunctionArgs.push(n);
 		funcArgs.push(dict[n]);
+	}
+	if (!('require' in dict)) {
+		FunctionArgs.push('require');
+		funcArgs.push(function (path){
+			if (path.startsWith('./')) {
+				path = dirname + path.substr(1);
+			}
+			if (path.startsWith('../')) {
+				path = dirname + "/" + path;
+			}
+			return require(path);
+		});
 	}
 	if (!('include' in dict)) {
 		FunctionArgs.push('include');
@@ -79,7 +91,7 @@ async function include(filepath, dict, callback) {
 			throw new Error("dict must be an object including a 'write' function.");
 		}
 		const template = await readFileAsync(filepath, {encoding:'utf8'});
-		const dirname = path.posix.dirname(filepath);
+		const dirname = path.posix.dirname(path.resolve(filepath));
 		const run = makeRun(template, true);
 
 		//build template namespace from dict + 'include' perhaps:
@@ -88,6 +100,19 @@ async function include(filepath, dict, callback) {
 		for (let n in dict) {
 			AsyncFunctionArgs.push(n);
 			funcArgs.push(dict[n]);
+		}
+		if (!('require' in dict)) {
+			AsyncFunctionArgs.push('require');
+			funcArgs.push(function (path){
+				console.log("custom require");
+				if (path.startsWith('./')) {
+					path = dirname + path.substr(1);
+				}
+				if (path.startsWith('../')) {
+					path = dirname + "/" + path;
+				}
+				return require(path);
+			});
 		}
 		if (!('include' in dict)) {
 			AsyncFunctionArgs.push('include');
@@ -186,7 +211,7 @@ if (require.main === module) {
 	}
 	console.log("Running template from '" + infile + "'...");
 
-	includeSync(infile, {write:write,require:require});
+	includeSync(infile, {write:write});
 
 	console.log("Writing output to '" + outfile + "'...");
 
