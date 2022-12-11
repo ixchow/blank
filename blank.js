@@ -27,13 +27,17 @@
 const fs = require('fs');
 const path = require('path');
 
-function includeSync(filepath, dict) {
+function includeSync(filepath, dict, options) {
 	if (typeof(dict) !== "object" || typeof(dict.write) !== "function") {
 		throw "dict must be an object including a 'write' function.";
 	}
 	const template = fs.readFileSync(filepath, {encoding:'utf8'});
 	const dirname = path.posix.dirname(path.resolve(filepath));
-	const run = makeRun(template, false);
+	let startDelim = '%{';
+	let endDelim = '}%';
+	if (typeof options === 'object' && 'startDelim' in options) startDelim = options.startDelim;
+	if (typeof options === 'object' && 'endDelim' in options) endDelim = options.endDelim;
+	const run = makeRun(template, false, startDelim, endDelim);
 
 	//build template namespace from dict + 'include' perhaps:
 	let FunctionArgs = [];
@@ -92,7 +96,11 @@ async function include(filepath, dict, callback) {
 		}
 		const template = await readFileAsync(filepath, {encoding:'utf8'});
 		const dirname = path.posix.dirname(path.resolve(filepath));
-		const run = makeRun(template, true);
+		let startDelim = '%{';
+		let endDelim = '}%';
+		//if (typeof options === 'object' && 'startDelim' in options) startDelim = options.startDelim;
+		//if (typeof options === 'object' && 'endDelim' in options) endDelim = options.endDelim;
+		const run = makeRun(template, true, startDelim, endDelim);
 
 		//build template namespace from dict + 'include' perhaps:
 		let AsyncFunctionArgs = [];
@@ -149,13 +157,13 @@ async function include(filepath, dict, callback) {
 	callback();
 }
 
-function makeRun(template, asyncMode) {
+function makeRun(template, asyncMode, startDelim = '%{', endDelim = '}%') {
 	let inWrite = true;
 	let run = "";
 	run += "'use strict'; write('";
 	for (let i = 0; i < template.length; ++i) {
 		if (inWrite) {
-			if (template.substr(i,2) === '%{') {
+			if (template.substr(i,2) === startDelim) {
 				run += "');";
 				inWrite = false;
 				++i;
@@ -173,7 +181,7 @@ function makeRun(template, asyncMode) {
 			if (asyncMode && template.substr(i,8) === 'include(') {
 				run += "await include(";
 				i += 7;
-			} else if (template.substr(i,2) === '}%') {
+			} else if (template.substr(i,2) === endDelim) {
 				run += "write('";
 				inWrite = true;
 				++i;
